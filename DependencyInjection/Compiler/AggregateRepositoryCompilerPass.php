@@ -26,29 +26,54 @@ final class AggregateRepositoryCompilerPass implements CompilerPassInterface
         }
 
         foreach ($container->findTaggedServiceIds('eventsauce.aggregate_repository') as $className => $tags) {
-            $reflectionClass = new ReflectionClass($className);
-            $shortClassName  = $reflectionClass->getShortName();
-            $servicePostFix  = preg_replace('~(?<=\\w)([A-Z])~', '_$1', $shortClassName);
+            foreach ($tags as $attributes) {
+                $reflectionClass = new ReflectionClass($className);
+                $shortClassName = $reflectionClass->getShortName();
+                $servicePostFix = preg_replace('~(?<=\\w)([A-Z])~', '_$1', $shortClassName);
 
-            if ($servicePostFix === null) {
-                throw new LogicException('Service post fix must not be null');
+                if ($servicePostFix === null) {
+                    throw new LogicException('Service post fix must not be null');
+                }
+
+                $definitionName = sprintf('jphooiveld_eventsauce.aggregate_repository.%s', strtolower($servicePostFix));
+
+                if ($container->hasDefinition($definitionName)) {
+                    continue;
+                }
+
+                $arguments = [
+                    $attributes['AggregateRootClass'],
+                    new Reference('jphooiveld_eventsauce.message_repository'),
+                    new Reference('jphooiveld_eventsauce.message_dispatcher'),
+                    new Reference('jphooiveld_eventsauce.message_decorator'),
+                ];
+
+                $definition = new Definition(ConstructingAggregateRootRepository::class, $arguments);
+                $container->setDefinition($definitionName, $definition);
             }
-
-            $definitionName = sprintf('jphooiveld_eventsauce.aggregate_repository.%s', strtolower($servicePostFix));
-
-            if ($container->hasDefinition($definitionName)) {
-                continue;
-            }
-
-            $arguments = [
-                $className,
-                new Reference('jphooiveld_eventsauce.message_repository'),
-                new Reference('jphooiveld_eventsauce.message_dispatcher'),
-                new Reference('jphooiveld_eventsauce.message_decorator'),
-            ];
-
-            $definition = new Definition(ConstructingAggregateRootRepository::class, $arguments);
-            $container->setDefinition($definitionName, $definition);
+//            $reflectionClass = new ReflectionClass($className);
+//            $shortClassName  = $reflectionClass->getShortName();
+//            $servicePostFix  = preg_replace('~(?<=\\w)([A-Z])~', '_$1', $shortClassName);
+//
+//            if ($servicePostFix === null) {
+//                throw new LogicException('Service post fix must not be null');
+//            }
+//
+//            $definitionName = sprintf('jphooiveld_eventsauce.aggregate_repository.%s', strtolower($servicePostFix));
+//
+//            if ($container->hasDefinition($definitionName)) {
+//                continue;
+//            }
+//
+//            $arguments = [
+//                $className,
+//                new Reference('jphooiveld_eventsauce.message_repository'),
+//                new Reference('jphooiveld_eventsauce.message_dispatcher'),
+//                new Reference('jphooiveld_eventsauce.message_decorator'),
+//            ];
+//
+//            $definition = new Definition(ConstructingAggregateRootRepository::class, $arguments);
+//            $container->setDefinition($definitionName, $definition);
         }
     }
 }
