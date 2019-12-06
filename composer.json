@@ -21,7 +21,7 @@
     },
     "require-dev": {
         "phpstan/phpstan": "@stable",
-		"phpunit/phpunit": "~7.0",
+		"phpunit/phpunit": "~8.5",
         "symfony/messenger": "^4.3",
         "doctrine/doctrine-bundle": "^1.8"
     },
