@@ -23,7 +23,7 @@
         "phpstan/phpstan": "@stable",
 		"phpunit/phpunit": "~7.0",
         "symfony/messenger": "^4.3",
-        "doctrine/doctrine-bundle": "^1.8"
+        "doctrine/doctrine-bundle": "^2.2"
     },
     "suggest": {
         "symfony/console": "Using symfony console to create event sourcing table",
